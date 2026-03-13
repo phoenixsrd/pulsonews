@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PULSO NEWS — Notícias em Tempo Real</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --surface: #111113;
+    --surface2: #1a1a1d;
+    --border: #222226;
+    --accent: #ff3b30;
+    --accent2: #ff9f0a;
+    --text: #f0f0f2;
+    --muted: #6b6b75;
+    --dim: #3a3a42;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,11,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0 0.75rem;
+    gap: 1rem;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .logo-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse-dot 1.4s ease-in-out infinite;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.6; }
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255,59,48,0.12);
+    border: 1px solid rgba(255,59,48,0.3);
+    color: var(--accent);
+    padding: 0.3rem 0.75rem;
+    border-radius: 2px;
+    font-weight: 500;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+  }
+
+  .live-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse-dot 1s ease-in-out infinite;
+  }
+
+  .refresh-btn {
+    background: none;
+    border: 1px solid var(--dim);
+    color: var(--muted);
+    padding: 0.4rem 1rem;
+    border-radius: 2px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    transition: all 0.2s;
+  }
+
+  .refresh-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .refresh-btn.spinning svg {
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .nav-categories {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0.1rem;
+    border-top: 1px solid var(--border);
+    margin-top: 0.5rem;
+  }
+
+  .nav-categories::-webkit-scrollbar { display: none; }
+
+  .cat-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    padding: 0.7rem 1.2rem;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .cat-btn:hover { color: var(--text); }
+
+  .cat-btn.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  .cat-btn .count {
+    display: inline-block;
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 0.6rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 2px;
+    margin-left: 0.3rem;
+  }
+
+  .cat-btn.active .count {
+    background: var(--accent);
+    color: white;
+  }
+
+  .ticker-wrap {
+    background: var(--accent);
+    overflow: hidden;
+    height: 32px;
+    display: flex;
+    align-items: center;
+  }
+
+  .ticker-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    background: #c0221a;
+    color: white;
+    padding: 0 1rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .ticker-track {
+    display: flex;
+    animation: ticker 35s linear infinite;
+    gap: 0;
+  }
+
+  .ticker-item {
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 0 2rem;
+    letter-spacing: 0.02em;
+  }
+
+  .ticker-item::after {
+    content: '◆';
+    margin-left: 2rem;
+    opacity: 0.5;
+    font-size: 0.5rem;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .hero-section {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 1.5px;
+    margin-bottom: 1.5px;
+    background: var(--border);
+  }
+
+  .hero-card {
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: filter 0.3s;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem;
+  }
+
+  .hero-card:hover { filter: brightness(1.05); }
+
+  .hero-card .bg-img {
+    position: absolute;
+    inset: 0;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    opacity: 0.25;
+    transition: opacity 0.3s, transform 0.5s;
+  }
+
+  .hero-card:hover .bg-img { opacity: 0.35; transform: scale(1.02); }
+
+  .hero-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,10,11,0.98) 0%, rgba(10,10,11,0.4) 60%, transparent 100%);
+  }
+
+  .hero-card-content { position: relative; z-index: 2; }
+
+  .card-source {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-source .sep { color: var(--dim); }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.6rem;
+    line-height: 1.05;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-desc {
+    font-size: 0.88rem;
+    color: rgba(240,240,242,0.65);
+    line-height: 1.6;
+    font-weight: 300;
+    max-width: 580px;
+  }
+
+  .hero-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5px;
+    background: var(--border);
+  }
+
+  .side-card {
+    background: var(--surface);
+    padding: 1.25rem 1.5rem;
+    flex: 1;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .side-card:hover {
+    background: var(--surface2);
+    border-left-color: var(--accent);
+  }
+
+  .side-card .card-source { margin-bottom: 0; }
+
+  .side-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+
+  .side-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+    font-weight: 300;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2rem 0 1rem;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 4px;
+    height: 1.4rem;
+    background: var(--accent);
+    display: block;
+  }
+
+  .section-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5px;
+    background: var(--border);
+  }
+
+  .news-card {
+    background: var(--surface);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    border-bottom: 2px solid transparent;
+  }
+
+  .news-card:hover {
+    background: var(--surface2);
+    border-bottom-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .news-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+
+  .news-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+
+  .news-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.55;
+    font-weight: 300;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .news-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .news-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--dim);
+    letter-spacing: 0.05em;
+  }
+
+  .read-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .read-link:hover { text-decoration: underline; }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 2px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .skeleton-card {
+    background: var(--surface);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .sk-img { height: 160px; width: 100%; }
+  .sk-line { height: 14px; width: 60%; }
+  .sk-title { height: 20px; width: 100%; }
+  .sk-title2 { height: 20px; width: 75%; }
+  .sk-desc { height: 12px; width: 100%; }
+  .sk-desc2 { height: 12px; width: 85%; }
+  .sk-desc3 { height: 12px; width: 70%; }
+
+  .status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(10,10,11,0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+    padding: 0.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .status-left { display: flex; align-items: center; gap: 1.5rem; }
+
+  .status-count { color: var(--text); }
+  
+  #next-refresh-bar {
+    width: 80px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  #next-refresh-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 100%;
+    transition: width 1s linear;
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+  }
+
+  .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-text { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.05em; color: var(--dim); }
+
+  .toast {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    padding: 0.75rem 1rem;
+    font-size: 0.78rem;
+    color: var(--text);
+    z-index: 999;
+    max-width: 300px;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.3s;
+    border-radius: 2px;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(0); }
+
+  @media (max-width: 900px) {
+    .hero-section { grid-template-columns: 1fr; }
+    .hero-side { flex-direction: row; overflow-x: auto; }
+    .side-card { min-width: 240px; }
+    .hero-title { font-size: 2rem; }
+    main { padding: 1rem; }
+  }
+
+  @media (max-width: 600px) {
+    .header-top { padding: 0.75rem 0; }
+    .logo { font-size: 2.2rem; }
+    .header-meta { gap: 0.75rem; }
+    .news-grid { grid-template-columns: 1fr; }
+    .hero-card { min-height: 280px; }
+    .hero-side { flex-direction: column; }
+    .status-bar { padding: 0.4rem 1rem; font-size: 0.6rem; }
+    header { padding: 0 1rem; }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.4s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(6px); }
+  }
+
+  .stagger:nth-child(1) { animation-delay: 0.05s; }
+  .stagger:nth-child(2) { animation-delay: 0.1s; }
+  .stagger:nth-child(3) { animation-delay: 0.15s; }
+  .stagger:nth-child(4) { animation-delay: 0.2s; }
+  .stagger:nth-child(5) { animation-delay: 0.25s; }
+  .stagger:nth-child(6) { animation-delay: 0.3s; }
+  .stagger:nth-child(7) { animation-delay: 0.35s; }
+  .stagger:nth-child(8) { animation-delay: 0.4s; }
+  .stagger:nth-child(9) { animation-delay: 0.45s; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo">
+      PULSO NEWS <span class="logo-dot"></span>
+    </div>
+    <div class="header-meta">
+      <span id="clock">--:--:--</span>
+      <span id="date-display">---</span>
+      <div class="live-badge">AO VIVO</div>
+      <button class="refresh-btn" id="refreshBtn" onclick="forceRefresh()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:4px">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        ATUALIZAR
+      </button>
+    </div>
+  </div>
+  <nav class="nav-categories" id="catNav">
+    <button class="cat-btn active" data-cat="all" onclick="setCategory('all')">Tudo <span class="count" id="cnt-all">0</span></button>
+    <button class="cat-btn" data-cat="mundo" onclick="setCategory('mundo')">Mundo <span class="count" id="cnt-mundo">0</span></button>
+    <button class="cat-btn" data-cat="brasil" onclick="setCategory('brasil')">Brasil <span class="count" id="cnt-brasil">0</span></button>
+    <button class="cat-btn" data-cat="tech" onclick="setCategory('tech')">Tech <span class="count" id="cnt-tech">0</span></button>
+    <button class="cat-btn" data-cat="ciencia" onclick="setCategory('ciencia')">Ciência <span class="count" id="cnt-ciencia">0</span></button>
+    <button class="cat-btn" data-cat="economia" onclick="setCategory('economia')">Economia <span class="count" id="cnt-economia">0</span></button>
+    <button class="cat-btn" data-cat="esportes" onclick="setCategory('esportes')">Esportes <span class="count" id="cnt-esportes">0</span></button>
+    <button class="cat-btn" data-cat="entretenimento" onclick="setCategory('entretenimento')">Entretenimento <span class="count" id="cnt-entretenimento">0</span></button>
+  </nav>
+</header>
+
+<div class="ticker-wrap" id="tickerWrap">
+  <div class="ticker-label">▶ URGENTE</div>
+  <div style="overflow:hidden;flex:1;">
+    <div class="ticker-track" id="ticker">
+      <div class="ticker-item">Carregando notícias ao vivo...</div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="hero-section" id="heroSection" style="display:none">
+    <div class="hero-card" id="heroMain" onclick="">
+      <div class="hero-card-content">
+        <div class="card-source" id="heroSource"></div>
+        <div class="hero-title" id="heroTitle">—</div>
+        <div class="hero-desc" id="heroDesc"></div>
+      </div>
+    </div>
+    <div class="hero-side" id="heroSide"></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title" id="sectionTitle">ÚLTIMAS NOTÍCIAS</div>
+    <div class="section-meta" id="sectionMeta"></div>
+  </div>
+
+  <div class="news-grid" id="newsGrid">
+    <div class="skeleton-card">
+      <div class="skeleton sk-img"></div>
+      <div class="skeleton sk-line"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="skeleton sk-title2"></div>
+      <div class="skeleton sk-desc"></div>
+      <div class="skeleton sk-desc2"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton sk-img"></div>
+      <div class="skeleton sk-line"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="skeleton sk-title2"></div>
+      <div class="skeleton sk-desc"></div>
+      <div class="skeleton sk-desc2"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton sk-img"></div>
+      <div class="skeleton sk-line"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="skeleton sk-desc"></div>
+      <div class="skeleton sk-desc2"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton sk-img"></div>
+      <div class="skeleton sk-line"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="skeleton sk-desc"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton sk-img"></div>
+      <div class="skeleton sk-line"></div>
+      <div class="skeleton sk-title"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton sk-img"></div>
+      <div class="skeleton sk-line"></div>
+      <div class="skeleton sk-title"></div>
+    </div>
+  </div>
+</main>
+
+<div class="status-bar">
+  <div class="status-left">
+    <span>PULSO NEWS</span>
+    <span><span class="status-count" id="totalCount">0</span> notícias carregadas</span>
+    <span>Auto-refresh: <span id="countdownDisplay">5:00</span></span>
+  </div>
+  <div style="display:flex;align-items:center;gap:0.75rem;">
+    <span>Próxima atualização</span>
+    <div id="next-refresh-bar"><div id="next-refresh-fill"></div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
+const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 min
+
+const FEEDS = [
+  { url: 'https://feeds.bbci.co.uk/portuguese/rss.xml', source: 'BBC Brasil', cat: 'mundo' },
+  { url: 'https://rss.dw.com/rdf/rss-br-all', source: 'DW Brasil', cat: 'mundo' },
+  { url: 'https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml', source: 'Agência Brasil', cat: 'brasil' },
+  { url: 'https://www.tecmundo.com.br/rss', source: 'TecMundo', cat: 'tech' },
+  { url: 'https://olhardigital.com.br/feed/', source: 'Olhar Digital', cat: 'tech' },
+  { url: 'https://canaltech.com.br/rss/', source: 'Canaltech', cat: 'tech' },
+  { url: 'https://super.abril.com.br/feed/', source: 'Super', cat: 'ciencia' },
+  { url: 'http://agencia.fapesp.br/rss/', source: 'Agência FAPESP de notícias', cat: 'ciencia' },
+  { url: 'https://feeds.feedburner.com/InfomoneyMercados', source: 'InfoMoney', cat: 'economia' },
+  { url: 'https://exame.com/feed/', source: 'Exame', cat: 'economia' },
+  { url: 'https://www.ogol.com.br/rss/noticias.php', source: 'OGOL', cat: 'esportes' },
+  { url: 'https://rollingstone.uol.com.br/feed/', source: 'Rolling Stone BR', cat: 'entretenimento' },
+  { url: 'https://veja.abril.com.br/feed/', source: 'Veja', cat: 'brasil' },
+];
+
+const FALLBACK_FEED = {
+  url: 'https://feeds.bbci.co.uk/portuguese/rss.xml',
+  source: 'BBC Brasil',
+  cat: 'mundo'
+};
+
+let allNews = [];
+let currentCat = 'all';
+let refreshTimer = null;
+let countdownTimer = null;
+let countdownSecs = REFRESH_INTERVAL / 1000;
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('pt-BR');
+  document.getElementById('date-display').textContent = now.toLocaleDateString('pt-BR', {
+    weekday: 'short', day: '2-digit', month: 'short'
+  }).toUpperCase();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function startCountdown() {
+  clearInterval(countdownTimer);
+  countdownSecs = REFRESH_INTERVAL / 1000;
+  updateCountdownUI();
+  countdownTimer = setInterval(() => {
+    countdownSecs--;
+    if (countdownSecs <= 0) countdownSecs = REFRESH_INTERVAL / 1000;
+    updateCountdownUI();
+  }, 1000);
+}
+
+function updateCountdownUI() {
+  const m = Math.floor(countdownSecs / 60);
+  const s = countdownSecs % 60;
+  document.getElementById('countdownDisplay').textContent =
+    `${m}:${String(s).padStart(2, '0')}`;
+  const pct = (countdownSecs / (REFRESH_INTERVAL / 1000)) * 100;
+  document.getElementById('next-refresh-fill').style.width = pct + '%';
+}
+
+async function fetchFeed(feed) {
+  try {
+    const resp = await fetch(`${RSS2JSON}${encodeURIComponent(feed.url)}&count=10&api_key=`);
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    if (data.status !== 'ok' || !data.items) return [];
+    return data.items.map(item => ({
+      title: item.title || 'Sem título',
+      description: stripHtml(item.description || item.content || ''),
+      link: item.link || '#',
+      pubDate: item.pubDate || new Date().toISOString(),
+      thumbnail: item.thumbnail || extractImg(item.description || item.content || ''),
+      source: feed.source,
+      cat: feed.cat,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+function stripHtml(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  return d.textContent || d.innerText || '';
+}
+
+function extractImg(html) {
+  const match = html.match(/<img[^>]+src=["']([^"'>]+)["']/i);
+  return match ? match[1] : null;
+}
+
+async function loadAllNews() {
+  const results = await Promise.all(FEEDS.map(f => fetchFeed(f)));
+  const combined = results.flat();
+  
+  if (combined.length === 0) {
+    const fallback = await fetchFeed(FALLBACK_FEED);
+    allNews = fallback;
+  } else {
+    allNews = combined;
+  }
+
+  allNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  
+  const seen = new Set();
+  allNews = allNews.filter(n => {
+    const key = n.title.toLowerCase().trim().slice(0, 60);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  updateCounts();
+  renderTicker();
+  renderNews();
+}
+
+function updateCounts() {
+  const cats = ['mundo','brasil','tech','ciencia','economia','esportes','entretenimento'];
+  document.getElementById('cnt-all').textContent = allNews.length;
+  cats.forEach(c => {
+    const el = document.getElementById(`cnt-${c}`);
+    if (el) el.textContent = allNews.filter(n => n.cat === c).length;
+  });
+  document.getElementById('totalCount').textContent = allNews.length;
+}
+
+function renderTicker() {
+  const items = allNews.slice(0, 12);
+  const html = items.map(n =>
+    `<div class="ticker-item">${n.source.toUpperCase()}: ${n.title}</div>`
+  ).join('');
+  const ticker = document.getElementById('ticker');
+  ticker.innerHTML = html + html; // double for seamless loop
+}
+
+function timeAgo(dateStr) {
+  try {
+    const d = new Date(dateStr);
+    const diff = (Date.now() - d.getTime()) / 1000;
+    if (diff < 60) return 'agora mesmo';
+    if (diff < 3600) return `${Math.floor(diff / 60)}min atrás`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h atrás`;
+    return `${Math.floor(diff / 86400)}d atrás`;
+  } catch { return ''; }
+}
+
+function setCategory(cat) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+  renderNews();
+}
+
+function getFiltered() {
+  if (currentCat === 'all') return allNews;
+  return allNews.filter(n => n.cat === currentCat);
+}
+
+function renderNews() {
+  const filtered = getFiltered();
+
+  if (allNews.length > 0 && currentCat === 'all') {
+    renderHero(allNews.slice(0, 4));
+    document.getElementById('heroSection').style.display = 'grid';
+  } else {
+    document.getElementById('heroSection').style.display = 'none';
+  }
+
+  const catLabels = {all:'ÚLTIMAS NOTÍCIAS', mundo:'MUNDO', brasil:'BRASIL',
+    tech:'TECNOLOGIA', ciencia:'CIÊNCIA', economia:'ECONOMIA',
+    esportes:'ESPORTES', entretenimento:'ENTRETENIMENTO'};
+  document.getElementById('sectionTitle').textContent = catLabels[currentCat] || 'NOTÍCIAS';
+  document.getElementById('sectionMeta').textContent =
+    `${filtered.length} artigos · Atualizado ${timeAgo(new Date())}`;
+
+  const gridItems = (currentCat === 'all') ? filtered.slice(4) : filtered;
+
+  const grid = document.getElementById('newsGrid');
+  grid.innerHTML = '';
+
+  if (gridItems.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📡</div>
+        <div class="empty-text">Nenhuma notícia carregada nesta categoria</div>
+      </div>`;
+    return;
+  }
+
+  gridItems.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'news-card fade-in stagger';
+    card.onclick = () => window.open(item.link, '_blank');
+    card.innerHTML = `
+      ${item.thumbnail ? `<img src="${item.thumbnail}" alt="" onerror="this.style.display='none'" loading="lazy">` : ''}
+      <div class="card-source">
+        <span>${item.source}</span>
+        <span class="sep">·</span>
+        <span>${catLabels[item.cat] || item.cat}</span>
+      </div>
+      <div class="news-title">${item.title}</div>
+      <div class="news-desc">${item.description.slice(0, 200)}</div>
+      <div class="news-footer">
+        <span class="news-time">${timeAgo(item.pubDate)}</span>
+        <a class="read-link" href="${item.link}" target="_blank" onclick="event.stopPropagation()">
+          Ler →
+        </a>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderHero(items) {
+  if (!items || items.length === 0) return;
+  const main = items[0];
+  const side = items.slice(1, 4);
+
+  document.getElementById('heroSource').innerHTML =
+    `<span>${main.source}</span><span class="sep">·</span><span>${timeAgo(main.pubDate)}</span>`;
+  document.getElementById('heroTitle').textContent = main.title;
+  document.getElementById('heroDesc').textContent = main.description.slice(0, 200);
+  document.getElementById('heroMain').onclick = () => window.open(main.link, '_blank');
+  
+  if (main.thumbnail) {
+    let img = document.querySelector('#heroMain .bg-img');
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'bg-img';
+      img.alt = '';
+      document.getElementById('heroMain').prepend(img);
+    }
+    img.src = main.thumbnail;
+  }
+
+  const sideEl = document.getElementById('heroSide');
+  sideEl.innerHTML = side.map(item => `
+    <div class="side-card" onclick="window.open('${item.link}','_blank')">
+      <div class="card-source">
+        <span>${item.source}</span>
+        <span class="sep">·</span>
+        <span>${timeAgo(item.pubDate)}</span>
+      </div>
+      <div class="side-title">${item.title}</div>
+      <div class="side-desc">${item.description.slice(0, 120)}</div>
+    </div>
+  `).join('');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+async function forceRefresh() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  btn.disabled = true;
+
+  clearTimeout(refreshTimer);
+  clearInterval(countdownTimer);
+
+  await loadAllNews();
+  showToast(`✓ ${allNews.length} notícias atualizadas`);
+
+  btn.classList.remove('spinning');
+  btn.disabled = false;
+
+  scheduleRefresh();
+  startCountdown();
+}
+
+function scheduleRefresh() {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(() => {
+    loadAllNews().then(() => {
+      showToast(`🔄 Auto-atualizado: ${allNews.length} notícias`);
+      scheduleRefresh();
+      startCountdown();
+    });
+  }, REFRESH_INTERVAL);
+}
+
+async function init() {
+  await loadAllNews();
+  scheduleRefresh();
+  startCountdown();
+}
+
+init();
+</script>
+</body>
+</html>
