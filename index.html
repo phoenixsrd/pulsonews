@@ -732,7 +732,7 @@
 
 <script>
 const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
-const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 min
+const REFRESH_INTERVAL = 5 * 60 * 1000;
 
 const FEEDS = [
   { url: 'https://feeds.bbci.co.uk/portuguese/rss.xml', source: 'BBC Brasil', cat: 'mundo' },
@@ -746,6 +746,7 @@ const FEEDS = [
   { url: 'https://feeds.feedburner.com/InfomoneyMercados', source: 'InfoMoney', cat: 'economia' },
   { url: 'https://exame.com/feed/', source: 'Exame', cat: 'economia' },
   { url: 'https://www.ogol.com.br/rss/noticias.php', source: 'OGOL', cat: 'esportes' },
+  { url: 'https://www.noticiasaominuto.com.br/rss/esporte', 'NOTÍCIASAOMINUTO' cat: 'esportes' },
   { url: 'https://rollingstone.uol.com.br/feed/', source: 'Rolling Stone BR', cat: 'entretenimento' },
   { url: 'https://veja.abril.com.br/feed/', source: 'Veja', cat: 'brasil' },
 ];
