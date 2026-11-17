@@ -6,15 +6,15 @@ O **Pulso News** é um agregador de notícias em português que reúne manchetes
 
 ## Recursos
 
-- Consulta simultânea de diversos feeds RSS por meio do serviço RSS2JSON.
-- Atualização automática a cada cinco minutos e botão de atualização manual.
-- Categorias com contagem de notícias e filtro instantâneo.
-- Ticker de urgência com as manchetes mais recentes.
-- Destaque principal e três cards laterais para as notícias em evidência.
-- Grid responsivo de notícias com imagem, fonte, resumo, horário relativo e link original.
-- Deduplicação local por título para evitar manchetes repetidas.
+- Consulta simultânea de 14 feeds RSS por meio do serviço RSS2JSON, com até 10 itens por feed.
+- Atualização automática a cada cinco minutos, com contagem regressiva e botão de atualização manual.
+- Sete categorias (Mundo, Brasil, Tech, Ciência, Economia, Esportes e Entretenimento), mais "Tudo", com contagem de notícias e filtro instantâneo.
+- Ticker "Urgente" com as 12 manchetes mais recentes.
+- Na aba "Tudo", destaque principal e três cards laterais para as quatro notícias mais recentes; as demais vão para o grid.
+- Grid responsivo com imagem, fonte, categoria, resumo, horário relativo e link original.
+- Deduplicação local pelos 60 primeiros caracteres do título.
 - Fallback para o feed da BBC Brasil quando nenhum feed retorna resultados.
-- Skeleton loading, estados vazios, toast de erro e relógio em tempo real.
+- Skeleton de carregamento, estado vazio, toast de confirmação a cada atualização e relógio em tempo real.
 
 ## Fontes e fluxo
 
@@ -24,7 +24,7 @@ As fontes são declaradas no array `FEEDS` do `index.html`, cada uma com URL RSS
 feeds RSS → RSS2JSON → normalização → ordenação/deduplicação → filtros e cards
 ```
 
-Fontes configuradas incluem BBC Brasil, Gazeta do Povo, Agência Brasil, Veja, Olhar Digital, Canaltech, Super, Inovação Tecnológica, InfoMoney, Exame, Futboo, Notícias ao Minuto, Rolling Stone e Motor1.
+Fontes configuradas: BBC Brasil, Gazeta do Povo, Agência Brasil, Veja, Olhar Digital, Canaltech, Super, Inovação Tecnológica, InfoMoney, Exame, Futboo, Notícias ao Minuto, Rolling Stone e Motor1.
 
 ## Rodar localmente
 
@@ -50,5 +50,6 @@ license     # Licença do projeto
 
 - O conteúdo pertence às fontes originais; o Pulso News apenas agrega e aponta para os links de origem.
 - A disponibilidade depende dos feeds RSS, do serviço RSS2JSON, da rede e de eventuais limites de requisição.
+- Quando um feed falha, ele é simplesmente omitido: não há aviso de erro na tela. Se todos falham, aparece só o fallback da BBC Brasil, ou o estado vazio.
 - Como o app é totalmente client-side, não há banco de dados nem armazenamento permanente de notícias.
-- Para adicionar uma fonte, inclua um objeto em `FEEDS` com `url`, `source` e `cat`.
+- Para adicionar uma fonte, inclua um objeto em `FEEDS` com `url`, `source` e `cat` (uma das categorias acima).
